@@ -1,0 +1,117 @@
+---
+title: "Markdown1"
+output:
+  html_document:
+    toc: true
+    toc_float: 
+      collapsed: false
+---
+
+```{r setup, include=FALSE, message=FALSE}
+rm(list=ls())
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, error = FALSE)
+setwd("C:/Users/mibar/OneDrive/Documents/THP/R_THP")
+```
+
+```{r, echo=FALSE, include=FALSE}
+
+librarian::shelf(tidyverse, data.table, scales,  ggplot2, gridExtra, ggpubr, ggthemes, ggrepel, directlabels, 
+                 RColorBrewer, viridis, fredr, fastmap, plotly, devtools, installr, magick, extraFont, systemfonts)
+install.Rtools(check = TRUE, check_r_update =  TRUE, GUI = TRUE)
+devtools::install_github("mibarnes/ggTHP")
+library(ggTHP)
+
+fredr_set_key("92dc6162fdfbda560283f539f4f7667f")
+
+```
+
+
+```{r, echo=FALSE, include=FALSE}
+
+UNRATE <-c("UNRATE","LNS14000025","LNS14000026")
+LFPR <-c("CIVPART","LNS11300025","LNS11300026")
+RETAIL <- c("RSAFS","RSFSXMV","RSXFS","RSMVPD","RSAOMV",
+            "RSFHFS","RSEAS")
+
+
+Series_Data_UNRATE <- map_dfr(UNRATE, fredr, observation_start = as.Date("2000-01-01")) 
+
+Series_Data_LFPR <- map_dfr(LFPR, fredr, observation_start = as.Date("2000-01-01")) 
+
+
+Series_Data_RETAIL <- map_dfr(RETAIL, fredr, observation_start = as.Date("2000-01-01")) 
+
+```
+
+
+# Figure 1: Unemployment and Labor Force Participation
+
+```{r, echo=FALSE, fig.show='hold', out.width='50%'}
+
+Series_Data_UNRATE %>%
+  ggplot +
+  geom_line(aes(x = date, y = value, group = series_id, color = series_id)) +
+  theme_brookings() + scale_color_brookings("THP_categorical1")
+
+Series_Data_LFPR %>%
+  ggplot +
+  geom_line(aes(x = date, y = value, group = series_id, color = series_id)) +
+  theme_brookings() + scale_color_brookings("THP_categorical1")
+
+
+
+```
+
+
+# Figure 2: Retail Sales  {.tabset .tabset-pills}
+
+```{r, echo=FALSE, fig.align='center', out.width='80%'}
+
+plot.RETAIL <- Series_Data_RETAIL %>%
+  ggplot(aes(x = date, y = value, group = series_id, color = series_id)) +
+  geom_line() +
+  geom_point(aes(text = paste0("<b>", series_id, "</b>", "<br>",
+                              "Date: ", date, "<br>",
+                              "Value: ", comma(value, 1), "<br>")),
+  size = 0.7) +
+  scale_y_continuous("" ,labels = comma) +
+  theme_brookings() + scale_color_brookings("THP_categorical1")
+
+
+
+#ggplotly(plot.RETAIL, tooltip = c("y","x","colour")) %>% config(displayModeBar = F)
+
+ggplotly(plot.RETAIL, tooltip = c("text")) %>% config(displayModeBar = F)
+
+
+
+```
+
+
+## Figure 3: Unemployment and Labor Force Participation
+
+```{r, echo=FALSE, fig.show='hold', out.width='50%'}
+
+Series_Data_UNRATE %>%
+  ggplot +
+  geom_line(aes(x = date, y = value, group = series_id, color = series_id))
+
+Series_Data_LFPR %>%
+  ggplot +
+  geom_line(aes(x = date, y = value, group = series_id, color = series_id))
+
+```
+
+
+
+
+## Figure 4: Retail Sales
+
+```{r, echo=FALSE, fig.align='center', out.width='80%'}
+
+Series_Data_RETAIL %>%
+  ggplot +
+  geom_line(aes(x = date, y = value, group = series_id, color = series_id))
+
+```
+
